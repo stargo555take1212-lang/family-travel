@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>家族旅行</title>
+  <!--
+    Android でホーム画面に「アプリとして」入れるための入口ページ。
+    Apps Script のページにはマニフェストを入れられないので、ここに置いて中にアプリを表示する。
+  -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#f2f2f7">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="家族旅行">
+  <style>
+    html, body { margin: 0; height: 100%; background: #f2f2f7; }
+    iframe { display: block; border: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <iframe id="app" title="家族旅行" allow="clipboard-read; clipboard-write"></iframe>
+  <script>
+    // アプリ（Apps Script の Web アプリ）の URL
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzs6GJRkylCM8ILGBwCrwNEj0LVGYZgSCEAa4ndy2bdo4Hi1wk6UMj5GOd83rxhdpSJ/exec';
+    // ?trip=… はそのままアプリへ渡す
+    var trip = new URLSearchParams(location.search).get('trip');
+    document.getElementById('app').src = APP_URL + (trip ? '?trip=' + encodeURIComponent(trip) : '');
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+  </script>
+</body>
+</html>
