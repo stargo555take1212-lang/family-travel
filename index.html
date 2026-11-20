@@ -17,16 +17,35 @@
   <style>
     html, body { margin: 0; height: 100%; background: #f2f2f7; }
     iframe { display: block; border: 0; width: 100%; height: 100%; }
+    /* アプリが出るまでの間に見せる画面（真っ白にしない） */
+    #splash {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      background: #f2f2f7; color: #5b5b66;
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      transition: opacity 0.25s;
+    }
+    #splash img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    #splash.is-hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
   <iframe id="app" title="家族旅行" allow="clipboard-read; clipboard-write"></iframe>
+  <div id="splash" aria-live="polite"><img src="icon-192.png" alt=""><p>読み込み中…</p></div>
   <script>
     // アプリ（Apps Script の Web アプリ）の URL
     var APP_URL = 'https://script.google.com/macros/s/AKfycbzs6GJRkylCM8ILGBwCrwNEj0LVGYZgSCEAa4ndy2bdo4Hi1wk6UMj5GOd83rxhdpSJ/exec';
     // ?trip=… はそのままアプリへ渡す
     var trip = new URLSearchParams(location.search).get('trip');
-    document.getElementById('app').src = APP_URL + (trip ? '?trip=' + encodeURIComponent(trip) : '');
+    var frame = document.getElementById('app');
+    frame.addEventListener('load', function () {
+      document.getElementById('splash').classList.add('is-hidden');
+    });
+    frame.src = APP_URL + (trip ? '?trip=' + encodeURIComponent(trip) : '');
+    // ホーム画面のアイコンから開き直したときは、いまの画面をそのまま使う（読み込み直さない）
+    if ('launchQueue' in window) {
+      window.launchQueue.setConsumer(function () {});
+    }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function () {});
     }
